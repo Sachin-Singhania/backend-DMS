@@ -7,9 +7,8 @@ const app = express.Router();
 
 app.post("/signup", async (req, res) => {
   try {
-    const { name, email, password } = req.body;
-
-    if (!(name && email && password)) {
+    const { fullname, email, password } = req.body;
+    if (!(fullname && email && password)) {
       return res.status(400).json({ message: 'All fields are compulsory' });
     }
 
@@ -19,13 +18,16 @@ app.post("/signup", async (req, res) => {
     }
 
     const EncPassword = await bcrypt.hash(password, 10);
-    const user = await User.create({ name, email, password: EncPassword });
+    const user = await User.create({ name:fullname, email, password: EncPassword });
 
     const token = jwt.sign({ id: user._id, email }, process.env.JWT_SECRET);
     user.password = undefined;
-
-    return res.status(201).json({ user, token });
-
+    const options = {
+      httpOnly: true,
+      secure: true, 
+      sameSite: 'None' 
+    };
+    return res.status(200).cookie("token", token,options).json({ success: true, user });
   } catch (error) {
     console.log(error);
     return res.status(500).json({ message: "Internal Server Error" });
@@ -49,13 +51,12 @@ app.post('/login', authenticateToken, async (req, res) => {
       user.token = token;
       user.password = undefined;
 
-      // const options = {
-      //   expires: new Date(Date.now() + 3 * 24 * 60 * 60 * 1000),
-      //   httpOnly: true,
-      //   secure: true, // use only if your site is served over HTTPS
-      //   sameSite: 'strict'
-      // };
-      return res.status(200).cookie("token", token).json({ success: true, user });
+      const options = {
+        httpOnly: true,
+        secure: true,
+        sameSite: 'None'
+      };
+      return res.status(200).cookie("token", token,options).json({ success: true, user });
     }
     return res.status(401).json({ message: 'Invalid credentials' });
 
