@@ -6,18 +6,14 @@ const fs = require('fs');
 const storage = multer.diskStorage({
   destination: async function (req, file, cb) {
     try {
-      const folderId = req.body.folderId; 
+      const { folderId, userId, parentFolderId } = req.body;
       let folder = await Folder.findById(folderId);
-      if (!folder) {
-        const userId = req.body.userId;  
-        const parentFolderId = req.body.parentFolderId;  
-        
+      if (folder?._id==null) {
         folder = new Folder({
           name: 'Default',
-          createdBy: userId,
+          createdBy: userId, 
           parentFolder: parentFolderId || null,
         });
-
         try {
           await folder.save();
           console.log('Folder created in DB:', folder);
@@ -28,7 +24,6 @@ const storage = multer.diskStorage({
       }
 
       const folderPath = path.join(__dirname, '..', 'upload', folder._id.toString()); 
-
       if (!fs.existsSync(folderPath)) {
         try {
           fs.mkdirSync(folderPath, { recursive: true });
