@@ -15,16 +15,26 @@ app.use(cors({
  origin:"http://localhost:5173",
    credentials: true,
  }));
+
+let retryCount = 0;
+const maxRetries = 2;
+
 const connectDB = async () => {
   try {
-    await mongoose.connect(process.env.MONGO_URI, {
-    });
+    await mongoose.connect(process.env.MONGO_URI);
     console.log('MongoDB connected...');
   } catch (err) {
-    console.error(err.message);
-    process.exit(1); 
+    retryCount++;
+    console.error(`MongoDB connection error: ${err.message}`);
+    if (retryCount <= maxRetries) {
+      console.log(`Retrying connection attempt ${retryCount}/${maxRetries}...`);
+    } else {
+      console.error('Max retries reached. Exiting...');
+      process.exit(1); // Exit after reaching max retries
+    }
   }
 };
+
 connectDB();
 
 
