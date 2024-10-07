@@ -90,6 +90,7 @@ router.get('/stream/:folderId/:fileId',authenticateToken, async (req, res) => {
     if (!fs.existsSync(filePath)) {
       return res.status(404).json({ message: 'File not found on the server.' });
     }
+    console.log(filePath);
     const readStream = fs.createReadStream(filePath,'utf-8');
    
     res.setHeader('Content-Type', file.mimeType);
