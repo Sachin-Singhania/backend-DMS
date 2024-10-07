@@ -4,7 +4,9 @@ const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const authenticateToken = require('../middleware/verifyuser');
 const app = express.Router();
-
+app.get('/',async (req,res) => {
+  return res.write("HELLO DMS");
+})
 app.post("/signup", async (req, res) => {
   try {
     const { fullname, email, password } = req.body;
