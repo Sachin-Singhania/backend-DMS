@@ -28,7 +28,7 @@ router.post('/Addfolder',authenticateToken,async (req,res) => {
             return new Error('Failed to create directory for uploads.');
           }
         }
-        res.status(201).json({ message: 'Folder Created'}); 
+        res.status(201).json({ message: 'Folder Created',folder:folder}); 
       } catch (error) {
       res.status(501).json({ message: 'Folder Unable to create'}); 
   }
