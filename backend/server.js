@@ -10,10 +10,16 @@ const cors=require('cors');
 app.use(express.json()); 
 app.use(cookieParser());
 app.use(morgan('dev'))
-
+let whitelist = ['http://localhost:5173', 'https://dms-organize.vercel.app']
 app.use(cors({
+ origin:function (origin, callback) {
+    if (whitelist.indexOf(origin) !== -1) {
+      callback(null, true)
+    } else {
+      callback(new Error('Not allowed by CORS'))
+    }
+  },
    credentials: true,
- origin:"http://localhost:5173",
  }));
 
 let retryCount = 0;
