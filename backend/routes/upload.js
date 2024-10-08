@@ -35,8 +35,10 @@ router.post('/Addfolder',authenticateToken,async (req,res) => {
 })
 router.post('/fileupload',authenticateToken, upload.single('file'), async (req, res) => {
   try {
-    console.log("first")
     const { folderId, userId } = req.body;
+    if (!req?.file) {
+      return res.status(400).json({ message: 'File upload failed: No file provided.' });
+    }
     console.log(folderId,userId);
     const newFile = new File({
       originalName: req.file.originalname,
@@ -47,7 +49,9 @@ router.post('/fileupload',authenticateToken, upload.single('file'), async (req, 
       uploadedBy: userId,  
       folder: folderId,   
     });
-    
+    if (!newFile) {
+      return res.status(400).json({ message: 'ERROR UPLOADING FILE' });
+    }
     await newFile.save();
     
    return res.status(201).json({ message: 'File uploaded successfully!', file: newFile });
