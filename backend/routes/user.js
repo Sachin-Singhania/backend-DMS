@@ -67,5 +67,16 @@ app.post('/login', authenticateToken, async (req, res) => {
     return res.status(500).json({ message: "Internal Server Error" });
   }
 });
+app.post('/logout',authenticateToken,async (req,res) => {
+  const options = {
+    httpOnly: true,
+    secure: true,
+    sameSite: 'None'
+  };
+  res.clearCookie("token",options);
+  
+  return res.status(200).json({ success: true });
+  
+});
 
 module.exports = app;
