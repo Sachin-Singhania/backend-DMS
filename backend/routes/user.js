@@ -36,7 +36,7 @@ app.post("/signup", async (req, res) => {
   }
 });
 
-app.post('/login', authenticateToken, async (req, res) => {
+app.post('/login', async (req, res) => {
   try {
     const { email, password } = req.body;
     if (!(email && password)) {
@@ -75,7 +75,7 @@ app.post('/logout',authenticateToken,async (req,res) => {
   };
   res.clearCookie("token",options);
   
-  return res.status(200).json({ success: true });
+  return res.status(200).json({ success: true,message:"Logged Out" });
   
 });
 
