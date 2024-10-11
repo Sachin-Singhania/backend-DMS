@@ -76,7 +76,7 @@ router.get('/folders/:userId',authenticateToken, async (req, res) => {
     return res.status(200).json(folderData);
   } catch (error) {
     console.error('Error fetching folders and files:', error);
-    returnres.status(500).json({ message: 'Error fetching folders and files.' });
+    return res.status(500).json({ message: 'Error fetching folders and files.' });
   }
 });
 router.get('/stream/:folderId/:fileId',authenticateToken, async (req, res) => {
