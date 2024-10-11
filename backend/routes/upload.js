@@ -115,5 +115,52 @@ router.get('/stream/:folderId/:fileId',authenticateToken, async (req, res) => {
     return res.status(500).json({ message: 'Error streaming file.' });
   }
 });
+router.post('/Removefolder/:folderId',authenticateToken,async (req,res) => {
+  try {
+    const folderId = req.params.folderId; 
+    let folder = await Folder.findByIdAndDelete(folderId);
+        if (!folder) {
+          return res.status(404).json({ message: 'Folder not found' });
+      }
+        const folderPath = path.join(__dirname, '..', 'upload', folder._id.toString()); 
+        if (!fs.existsSync(folderPath)) {
+          return new Error('Folder Doesnt exisit in Server');
+        }
+          try {
+            await fs.promises.rm(folderPath, { recursive: true, force: true });
+            console.log('Folder Deleted:', folderPath);
+          } catch (mkdirError) {
+            console.error('Error Deleting folder:', mkdirError.message);
+            return new Error('Failed to create directory for uploads.');
+          }
+        res.status(201).json({ message: 'Folder Deleted'}); 
+      } catch (error) {
+      res.status(501).json({ message: 'Folder Unable to delete'}); 
+  }
+})
+router.post('/filedelete/:folderId/:fileId', authenticateToken, async (req, res) => {
+  try {
+    const { folderId, fileId } = req.params;
+    console.log(folderId,fileId)
+    const file = await File.findOneAndDelete({ _id: fileId,folder:folderId });
+    if (!file) {
+      return res.status(404).json({ message: 'File not found' });
+    }
+    console.log(file);
+    const filePath = path.join(__dirname, '..', 'upload', folderId, file?.fileName);
+    try{
+     await fs.promises.rm(filePath); 
+      console.log('File Deleted:', filePath);
+    } catch(e) {
+      return res.status(404).json({ message: "Can't delete file; file not found on server." });
+
+    }
+
+    return res.status(200).json({ message: 'File deleted successfully!', file });
+  } catch (err) {
+    console.error('Error in file delete route:', err);
+    return res.status(500).json({ error: err.message });
+  }
+});
 
 module.exports = router;  
